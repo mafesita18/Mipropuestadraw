@@ -15,21 +15,17 @@ def encode_image_to_base64(image_path):
         return None
 
 # Configuración de página
-st.set_page_config(page_title='Tablero Inteligente - Creador de Cuentos', page_icon='🎨')
+st.set_page_config(page_title='Generador de Criaturas Fantásticas 👾', page_icon='👾', layout='centered')
 
-st.title("🎨 Creador de Cuentos Mágicos desde tus Bocetos")
+st.title("👾 Generador de Criaturas y Monstruos Fantásticos")
+st.markdown("Dibuja cualquier figura, monstruo o garabato en el lienzo y la IA creará sus estadísticas, poderes y ficha técnica completa.")
 
 with st.sidebar:
-    st.header("✨ Acerca de la App")
-    st.write(
-        "¡Dibuja cualquier personaje o escena en el lienzo! "
-        "Nuestra Inteligencia Artificial interpretará tu boceto y creará un "
-        "cuento infantil único con título, historia y moraleja."
-    )
+    st.header("🎨 Herramientas del Lienzo")
     stroke_width = st.slider('Ancho del pincel', 1, 30, 5)
-    stroke_color = st.color_picker('Color del pincel', '#000000')
+    stroke_color = st.color_picker('Color de trazo', '#000000')
 
-st.subheader("🖍️ Dibuja tu personaje o escena aquí:")
+st.subheader("🖊️ Dibuja tu criatura aquí:")
 
 # Componente de lienzo interactivo
 canvas_result = st_canvas(
@@ -40,7 +36,7 @@ canvas_result = st_canvas(
     height=320,
     width=450,
     drawing_mode="freedraw",
-    key="canvas_cuentos",
+    key="canvas_monstruo",
 )
 
 # Entrada de la API Key de OpenAI
@@ -52,33 +48,32 @@ if ke:
 else:
     api_key = None
 
-analyze_button = st.button("✨ ¡Convertir mi dibujo en un Cuento Mágico!", type="primary")
+analyze_button = st.button("🚀 ¡Analizar Criatura y Generar Poderes!", type="primary")
 
-# Procesamiento al presionar el botón
 if canvas_result.image_data is not None and analyze_button:
     if not api_key:
-        st.warning("⚠ Por favor ingresa tu OpenAI API Key antes de continuar.")
+        st.warning("⚠️ Por favor ingresa tu OpenAI API Key antes de continuar.")
     else:
-        with st.spinner("🧙‍♂️ La IA está analizando tu dibujo y tejiendo la historia..."):
-            # Guardar la imagen dibujada en el lienzo
+        with st.spinner("⚡ Identificando especie, calculando nivel de poder y habilidades..."):
+            # Guardar la imagen dibujada
             input_numpy_array = np.array(canvas_result.image_data)
             input_image = Image.fromarray(input_numpy_array.astype('uint8'), 'RGBA')
             input_image.save('boceto.png')
             
-            # Codificar la imagen a Base64
             base64_image = encode_image_to_base64("boceto.png")
             
             if base64_image:
-                # Prompt creativo para generar el cuento infantil
                 prompt_text = (
-                    "Observa detenidamente este dibujo o boceto. "
-                    "1. Identifica qué objetos, personajes o figuras parecen estar dibujados. "
-                    "2. Con base en esa interpretación, escribe un cuento infantil mágico, muy tierno y divertido. "
-                    "3. Estructura la respuesta con: "
-                    "   - 📖 **Título de la Historia** "
-                    "   - 🎨 **Lo que vi en tu dibujo:** (una breve frase explicando qué reconoció) "
-                    "   - ✨ **El Cuento:** (un cuento de 2 a 3 párrafos ideal para niños) "
-                    "   - 🌟 **Moraleja:** (una enseñanza bonita relacionada al cuento)."
+                    "Observa detenidamente este dibujo o boceto de una criatura/monstruo. "
+                    "Analiza su forma, extremidades, trazos y estructura. "
+                    "Crea una ficha de personaje de juego estilo Pokémon o RPG con los siguientes puntos: "
+                    "\n\n"
+                    "1. 👾 **Nombre de la Criatura:** (Inventa un nombre único y genial)\n"
+                    "2. 🏷️ **Clase / Elemento:** (Ejemplo: Fuego Místico, Sombra Digital, Viento Cósmico, etc.)\n"
+                    "3. ⚡ **Nivel de Poder:** (Un número del 1 al 999 con una breve justificación)\n"
+                    "4. 💥 **3 Habilidades Especiales:** (Describe 3 ataques o superpoderes divertidos basados en el dibujo)\n"
+                    "5. 🌍 **Hábitat Natural:** (Dónde vive esta criatura)\n"
+                    "6. 📜 **Descripción y Origen:** (Un párrafo tierno/divertido explicando su personalidad y comportamiento)."
                 )
 
                 try:
@@ -105,9 +100,9 @@ if canvas_result.image_data is not None and analyze_button:
                     
                     resultado = response.choices[0].message.content
                     
-                    st.success("¡Historia generada con éxito!")
+                    st.success("¡Ficha de Criatura Creada Exitosamente!")
                     st.markdown("---")
                     st.markdown(resultado)
 
                 except Exception as e:
-                    st.error(f"Ocurrió un error al consultar OpenAI: {e}")
+                    st.error(f"Ocurrió un error al consultar la API: {e}")
